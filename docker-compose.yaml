@@ -1,0 +1,16 @@
+version: "3.5"
+
+services:    
+
+  decrypt:
+    restart: "no"
+    image: decrypt_dbvis:1.0
+    build:
+      context: .
+    entrypoint: /home/decrypter/decrypt_dbvis.py /config/dbvis.xml
+    volumes:
+    - type: bind
+       # Set the location of your DbVis config directory here
+      source: ${HOME}/.dbvis/config130
+      target: /config
+    tty: true
