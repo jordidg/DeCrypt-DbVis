@@ -24,9 +24,9 @@
 import base64
 from hashlib import md5
 from Crypto.Cipher import DES
-from os.path import expanduser
 from lxml import etree, objectify
 from collections import namedtuple
+from prettytable import PrettyTable
 
 _iterations = 10
 _salt = b'\x8E\x129\x9C\aroZ'  # -114, 18, 57, -100, 7, 114, 111, 90
@@ -57,8 +57,8 @@ class PBEWithMD5AndDES(object):
         return self._cipher().encrypt(plaintext)
 
     def decrypt(self, ciphertext):
-        plaintext = self._cipher().decrypt(ciphertext)
-        return plaintext.decode('utf-8')
+        plaintext = self._cipher().decrypt(ciphertext).decode('utf-8')
+        return plaintext[:-ord(plaintext[-1])]
 
 
 def decrypt_password(password):
@@ -105,33 +105,15 @@ def extract_credentials(config_file):
     return creds
 
 
-# Some modified snippet I had laying around. found it on stackoverflow maybe?
-# TODO(gerry): Replace with prettytables.
 def print_table(rows):
-    headers = rows[0]._fields
-    lens = []
-    for i in range(len(rows[0])):
-        lens.append(len(max([str(x[i]) for x in rows] + [headers[i]],
-                            key=lambda x:len(str(x)))))
-    formats, hformats = [], []
-    for i in range(len(rows[0])):
-        if isinstance(rows[0][i], int):
-            formats.append("%%%dd" % lens[i])
-        else:
-            formats.append("%%-%ds" % lens[i])
-        hformats.append("%%-%ds" % lens[i])
-    pattern = " | ".join(formats)
-    hpattern = " | ".join(hformats)
-    separator = "-+-".join(['-' * n for n in lens])
-    print("   ", hpattern % tuple(headers))
-    print("   ", separator)
-    for line in rows:
-        print("   ", pattern % tuple(line))
-
+    table = PrettyTable()
+    table.align = 'l'
+    table.field_names = rows[0]._fields
+    table.add_rows(rows)
+    print(table)
 
 if __name__ == '__main__':
     import sys
-    import os.path
     from glob import glob
     print("[+] DbVisualizer Password Extractor and Decryptor (@gerryeisenhaur)")
     if len(sys.argv) != 2:
