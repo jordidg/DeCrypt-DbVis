@@ -103,19 +103,6 @@ def extract_credentials(config_file):
                 conn_info = ",".join(["%s=%s" % (p.get('UrlVariableName'), p) for p in params])
             cred['connection_info'] = conn_info
             creds.append(Credential(**cred))
-
-        # Note: I haven't tested anything related to ssh info extraction... no test cases
-        ssh_password = getattr(db.SshSettings, 'SshPassword', None)
-        if ssh_password and ssh_password.text:
-            host = getattr(db.SshSettings, 'SshHost', '')
-            port = getattr(db.SshSettings, 'SshPort', '22')
-            ssh_cred = dict(
-                driver="SSH",
-                name="%s" % (cred['name'],),
-                user=getattr(db.SshSettings, 'SshUserid'),
-                password=pbe.decrypt(base64.b64decode(ssh_password.text)),
-                connection_info="%s:%s" % (host, port,))
-            creds.append(Credential(**ssh_cred))
     return creds
 
 
