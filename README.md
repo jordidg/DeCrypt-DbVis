@@ -10,5 +10,5 @@ I created it because Apple removed Python from MacOS.
 
 ## Run Decrypter
 
-1. Build: `docker compose build`
-2. Run: `docker compose run --rm decrypt`
+1. Build: `docker build -t decrypt_dbvis .`
+2. Run: `docker run --mount type=bind,source=$HOME/.dbvis,target=/config,readonly decrypt_dbvis`

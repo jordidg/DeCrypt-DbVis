@@ -1,10 +1,6 @@
-FROM centos/python-27-centos7:latest
+FROM python:2
 
-RUN pip install pycrypto \
- && pip install lxml \
-;
-
-WORKDIR /home/decrypter
+RUN pip install pycrypto lxml
 
 COPY ./decrypt_dbvis.py ./
-
+CMD ["python", "decrypt_dbvis.py", "/config"]
