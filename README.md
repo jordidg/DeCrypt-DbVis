@@ -10,6 +10,5 @@ I created it because Apple removed Python from MacOS.
 
 ## Run Decrypter
 
-1. Adjust the path to your dbvis.xml in `docker-compose.yaml`
-2. Build: `docker compose build`
-3. Run: `docker compose run --rm decrypt`
+1. Build: `docker compose build`
+2. Run: `docker compose run --rm decrypt`

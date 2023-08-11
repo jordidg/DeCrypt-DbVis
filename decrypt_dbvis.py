@@ -133,27 +133,13 @@ def print_table(rows):
 if __name__ == '__main__':
     import sys
     import os.path
+    from glob import glob
     print "[+] DbVisualizer Password Extractor and Decryptor (@gerryeisenhaur)"
-    if len(sys.argv) == 2:
-        if os.path.exists(sys.argv[1]):
-            dbvis_config = sys.argv[1]
-        else:
-            dbvis_config = None
-    else:
-        print "[+] Additional Usage Options: "
-        print "[+]     %s <config filename>" % sys.argv[0]
-        print "[+]     %s <encrypted password>" % sys.argv[0]
-        dbvis_config = "%s/.dbvis/config70/dbvis.xml" % os.path.expanduser("~")
+    if len(sys.argv) != 2:
+        print "[-] Usage: %s <dbvis_config_dir>" % (sys.argv[0],)
+        sys.exit(1)
 
-    if not dbvis_config:
-        password = sys.argv[1]
-        print "[+] Decrypting: %s" % (password,)
-        try:
-            print "[+] Plain Text: %s" % (decrypt_password(password),)
-        except Exception, e:
-            print "[!] Error decrypting! %s" % (e,)
-        sys.exit()
-
-    print "[+] Extracting credentials from %s\n" % (dbvis_config,)
-    print_table(extract_credentials(dbvis_config))
+    for dbvis_config in glob('%s/*/dbvis.xml' % sys.argv[1]):
+        print "[+] Extracting credentials from %s\n" % (dbvis_config,)
+        print_table(extract_credentials(dbvis_config))
     print "\n[+] Done. Have Fun!"
