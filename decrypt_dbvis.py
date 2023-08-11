@@ -32,7 +32,7 @@ _iterations = 10
 _salt = '\x8E\x129\x9C\aroZ'  # -114, 18, 57, -100, 7, 114, 111, 90
 _password = 'qinda'
 Credential = namedtuple('Credential', ['driver', 'name', 'user',
-                                        'password', 'connection_info'])
+                                       'password', 'connection_info'])
 
 
 class PBEWithMD5AndDES(object):
@@ -85,7 +85,7 @@ def extract_credentials(config_file):
     conn_info = (proxy_user and proxy_pass) and conn_info or None
     if conn_info:
         creds.append(Credential(name="Default Proxy", user=proxy_user,
-            password=proxy_pass, connection_info=conn_info, driver='Proxy'))
+                                password=proxy_pass, connection_info=conn_info, driver='Proxy'))
 
     # Grab and decrypt each DB password along with any SSh servers
     cred = {}
@@ -113,7 +113,7 @@ def print_table(rows):
     lens = []
     for i in range(len(rows[0])):
         lens.append(len(max([str(x[i]) for x in rows] + [headers[i]],
-            key=lambda x:len(str(x)))))
+                            key=lambda x:len(str(x)))))
     formats, hformats = [], []
     for i in range(len(rows[0])):
         if isinstance(rows[0][i], int):
