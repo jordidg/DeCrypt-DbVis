@@ -8,7 +8,6 @@ AKA `gerry/decrypt_dbvis.py` on GitHub.
 
 I created it because Apple removed Python from MacOS.
 
-## Run Decrypter
+## Run decrypter using Docker
 
-1. Build: `docker build -t decrypt_dbvis .`
-2. Run: `docker run --mount type=bind,source=$HOME/.dbvis,target=/config,readonly decrypt_dbvis`
+`docker run --rm --mount type=bind,source=$HOME/.dbvis,target=/config,readonly ghcr.io/jordidg/decrypt-dbvis`
