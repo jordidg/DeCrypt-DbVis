@@ -22,21 +22,20 @@
 [+] Done. Have Fun!
 """
 import base64
+from collections import namedtuple
 from hashlib import md5
 from Crypto.Cipher import DES
-from lxml import etree, objectify
-from collections import namedtuple
-from prettytable import PrettyTable
+from lxml import objectify
+from prettytable import PrettyTable, SINGLE_BORDER
 
-_iterations = 10
-_salt = b'\x8E\x129\x9C\aroZ'  # -114, 18, 57, -100, 7, 114, 111, 90
-_password = 'qinda'
+_ITERATIONS = 10
+_SALT = b'\x8E\x129\x9C\aroZ'  # -114, 18, 57, -100, 7, 114, 111, 90
+_PASSWORD = 'qinda'
 Credential = namedtuple('Credential', ['driver', 'name', 'user',
                                        'password', 'connection_info'])
 
 
-class PBEWithMD5AndDES(object):
-
+class PBEWithMD5AndDES():
     def __init__(self, password, salt, iterations):
         key = self._generate_key(password, salt, iterations, 16)
         self.key = key[:8]
@@ -47,7 +46,7 @@ class PBEWithMD5AndDES(object):
 
     def _generate_key(self, key, salt, count, length):
         key = key.encode('utf-8') + salt
-        for i in range(count):
+        for _ in range(count):
             key = md5(key).digest()
         return key[:length]
 
@@ -62,14 +61,14 @@ class PBEWithMD5AndDES(object):
 
 
 def decrypt_password(password):
-    pbe = PBEWithMD5AndDES(_password, _salt, _iterations)
+    pbe = PBEWithMD5AndDES(_PASSWORD, _SALT, _ITERATIONS)
     return pbe.decrypt(base64.b64decode(password))
 
 
 def extract_credentials(config_file):
-    with open(config_file, 'r') as xml_file:
+    with open(config_file, 'r', encoding='UTF-8') as xml_file:
         root_obj = objectify.parse(xml_file).getroot()
-    pbe = PBEWithMD5AndDES(_password, _salt, _iterations)
+    pbe = PBEWithMD5AndDES(_PASSWORD, _SALT, _ITERATIONS)
     creds = []
 
     # Get any global proxy if it exists.
@@ -80,7 +79,7 @@ def extract_credentials(config_file):
     proxy_host = getattr(root_obj.General, 'ProxyHost', None)
     proxy_port = getattr(root_obj.General, 'ProxyPort', None)
     proxy_type = getattr(root_obj.General, 'ProxyType', None)
-    conn_info = "%s://%s:%s" % (proxy_type, proxy_host, proxy_port,)
+    conn_info = f"{proxy_type}://{proxy_host}:{proxy_port}"
     conn_info = (proxy_user and proxy_pass) and conn_info or None
     if conn_info:
         creds.append(Credential(name="Default Proxy", user=proxy_user,
@@ -99,7 +98,7 @@ def extract_credentials(config_file):
 
             if not conn_info:
                 params = db.UrlVariables.Driver.getchildren()
-                conn_info = ",".join(["%s=%s" % (p.get('UrlVariableName'), p) for p in params])
+                conn_info = ",".join([f"{p.get('UrlVariableName')}={p}" for p in params])
             cred['connection_info'] = conn_info
             creds.append(Credential(**cred))
     return creds
@@ -108,6 +107,7 @@ def extract_credentials(config_file):
 def print_table(rows):
     table = PrettyTable()
     table.align = 'l'
+    table.set_style(SINGLE_BORDER)
     table.field_names = rows[0]._fields
     table.add_rows(rows)
     print(table)
@@ -117,10 +117,10 @@ if __name__ == '__main__':
     from glob import glob
     print("[+] DbVisualizer Password Extractor and Decryptor (@gerryeisenhaur)")
     if len(sys.argv) != 2:
-        print("[-] Usage: %s <dbvis_config_dir>" % (sys.argv[0],))
+        print(f"[-] Usage: {sys.argv[0]} <dbvis_config_dir>")
         sys.exit(1)
 
-    for dbvis_config in glob('%s/*/dbvis.xml' % sys.argv[1]):
-        print("[+] Extracting credentials from %s\n" % (dbvis_config,))
+    for dbvis_config in glob(f'{sys.argv[1]}/*/dbvis.xml'):
+        print(f"[+] Extracting credentials from {dbvis_config}\n")
         print_table(extract_credentials(dbvis_config))
     print("\n[+] Done. Have Fun!")
