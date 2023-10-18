@@ -1,3 +1,4 @@
-pycryptodome
-lxml
-prettytable
+lxml==4.9.3
+prettytable==3.9.0
+pycryptodome==3.19.0
+wcwidth==0.2.8
