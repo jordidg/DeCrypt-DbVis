@@ -4,6 +4,10 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+    groups:
+      requirements:
+        patterns:
+          - "*"
 
   - package-ecosystem: "docker"
     directory: "/"
