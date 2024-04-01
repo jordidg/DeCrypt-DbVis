@@ -1,4 +1,4 @@
-lxml==5.1.0
+lxml==5.2.0
 prettytable==3.10.0
 pycryptodome==3.20.0
 wcwidth==0.2.13
