@@ -1,4 +1,4 @@
-FROM --platform=${BUILDPLATFORM} python:3.12.2-alpine3.18
+FROM --platform=${BUILDPLATFORM} python:3.12.3-alpine3.18
 ARG BUILDPLATFORM
 
 WORKDIR /usr/src/decrypt_dbvis
